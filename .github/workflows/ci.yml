@@ -1,0 +1,228 @@
+name: CI/CD Pipeline - СберАвтоподписка
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # Проверка кода и линтинг
+  lint:
+    name: 🔍 Проверка кода
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Клонирование репозитория
+        uses: actions/checkout@v4
+
+      - name: 🐍 Настройка Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort mypy
+          pip install -r requirements.txt
+
+      - name: 🧹 Проверка форматирования кода
+        run: |
+          echo "🔍 Проверка Black форматирования..."
+          black --check --diff code/ tests/ example/
+
+      - name: 📏 Проверка импортов
+        run: |
+          echo "🔍 Проверка сортировки импортов..."
+          isort --check-only --diff code/ tests/ example/
+
+      - name: 🔍 Линтинг с Flake8
+        run: |
+          echo "🔍 Проверка стиля кода..."
+          flake8 code/ tests/ example/ --max-line-length=100 --ignore=E203,W503
+
+      - name: 🔍 Проверка типов с MyPy
+        run: |
+          echo "🔍 Проверка типов..."
+          mypy code/ --ignore-missing-imports --no-strict-optional
+
+  # Тестирование
+  test:
+    name: 🧪 Тестирование
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: 📥 Клонирование репозитория
+        uses: actions/checkout@v4
+
+      - name: 🐍 Настройка Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov requests
+
+      - name: 🧪 Запуск тестов
+        run: |
+          echo "🧪 Запуск тестов..."
+
+          # Тест Jupyter Notebook
+          echo "📊 Тестирование Jupyter Notebook..."
+          cd tests && python test_notebook.py && cd ..
+
+          # Тест проекта (без API)
+          echo "🧪 Тестирование проекта..."
+          cd tests && python test_project.py && cd ..
+
+      - name: 📊 Покрытие кода
+        run: |
+          echo "📊 Проверка покрытия кода..."
+          pytest tests/ --cov=code --cov-report=xml --cov-report=html
+
+      - name: 📤 Загрузка отчета покрытия
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  # Проверка API
+  api-test:
+    name: 🌐 Тестирование API
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: 📥 Клонирование репозитория
+        uses: actions/checkout@v4
+
+      - name: 🐍 Настройка Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🌐 Запуск API сервера
+        run: |
+          echo "🌐 Запуск API сервера..."
+          cd code && python api.py &
+          sleep 10
+          cd ..
+
+      - name: 🧪 Тестирование API
+        run: |
+          echo "🧪 Тестирование API..."
+          cd tests && python test_model.py && cd ..
+
+  # Проверка документации
+  docs:
+    name: 📖 Проверка документации
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Клонирование репозитория
+        uses: actions/checkout@v4
+
+      - name: 🔍 Проверка README
+        run: |
+          echo "🔍 Проверка README.md..."
+          if [ ! -f "README.md" ]; then
+            echo "❌ README.md не найден"
+            exit 1
+          fi
+
+          # Проверяем наличие основных разделов
+          grep -q "## Описание" README.md || echo "⚠️ Раздел 'Описание' не найден"
+          grep -q "## Установка" README.md || echo "⚠️ Раздел 'Установка' не найден"
+          grep -q "## Использование" README.md || echo "⚠️ Раздел 'Использование' не найден"
+
+          echo "✅ README.md проверен"
+
+      - name: 🔍 Проверка структуры проекта
+        run: |
+          echo "🔍 Проверка структуры проекта..."
+
+          # Проверяем наличие основных папок
+          [ -d "code" ] || (echo "❌ Папка 'code' не найдена" && exit 1)
+          [ -d "tests" ] || (echo "❌ Папка 'tests' не найдена" && exit 1)
+          [ -d "example" ] || (echo "❌ Папка 'example' не найдена" && exit 1)
+
+          # Проверяем наличие основных файлов
+          [ -f "requirements.txt" ] || (echo "❌ requirements.txt не найден" && exit 1)
+          [ -f "run_project.sh" ] || (echo "❌ run_project.sh не найден" && exit 1)
+
+          echo "✅ Структура проекта корректна"
+
+  # Сборка и деплой (опционально)
+  build:
+    name: 🏗️ Сборка
+    runs-on: ubuntu-latest
+    needs: [lint, test, api-test, docs]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📥 Клонирование репозитория
+        uses: actions/checkout@v4
+
+      - name: 🐍 Настройка Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 📦 Создание артефактов
+        run: |
+          echo "📦 Создание артефактов..."
+          mkdir -p artifacts
+          cp -r build/* artifacts/ 2>/dev/null || true
+          cp -r code/* artifacts/ 2>/dev/null || true
+          cp requirements.txt artifacts/
+          cp run_project.sh artifacts/
+
+      - name: 📤 Загрузка артефактов
+        uses: actions/upload-artifact@v3
+        with:
+          name: sber-auto-model
+          path: artifacts/
+          retention-days: 30
+
+  # Уведомления
+  notify:
+    name: 📢 Уведомления
+    runs-on: ubuntu-latest
+    needs: [lint, test, api-test, docs, build]
+    if: always()
+
+    steps:
+      - name: 📊 Статус сборки
+        run: |
+          echo "📊 Статус сборки:"
+          echo "Lint: ${{ needs.lint.result }}"
+          echo "Test: ${{ needs.test.result }}"
+          echo "API Test: ${{ needs.api-test.result }}"
+          echo "Docs: ${{ needs.docs.result }}"
+          echo "Build: ${{ needs.build.result }}"
+
+          if [[ "${{ needs.lint.result }}" == "success" && 
+                "${{ needs.test.result }}" == "success" && 
+                "${{ needs.api-test.result }}" == "success" && 
+                "${{ needs.docs.result }}" == "success" ]]; then
+            echo "🎉 Все проверки пройдены успешно!"
+          else
+            echo "⚠️ Некоторые проверки провалены"
+            exit 1
+          fi

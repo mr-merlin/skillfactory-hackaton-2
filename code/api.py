@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import time
+from typing import Any, Dict, List, Optional
 
 from flask import Flask, jsonify, request
 
@@ -16,10 +17,10 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Глобальная переменная для модели
-model = None
+model: Optional[SberAutoModel] = None
 
 
-def load_model():
+def load_model() -> bool:
     """Загрузка модели при запуске"""
     global model
     try:
@@ -33,7 +34,7 @@ def load_model():
 
 
 @app.route("/health", methods=["GET"])
-def health_check():
+def health_check() -> Any:
     """Проверка здоровья API"""
     return jsonify(
         {
@@ -45,7 +46,7 @@ def health_check():
 
 
 @app.route("/predict", methods=["POST"])
-def predict():
+def predict() -> Any:
     """
     Предсказание для одной сессии
 
@@ -113,7 +114,7 @@ def predict():
 
 
 @app.route("/predict_batch", methods=["POST"])
-def predict_batch():
+def predict_batch() -> Any:
     """
     Пакетное предсказание для нескольких сессий
 
@@ -225,20 +226,17 @@ def predict_batch():
 
     except Exception as e:
         logger.error(f"❌ Ошибка пакетного предсказания: {e}")
-        return (
-            jsonify(
-                {
-                    "error": str(e),
-                    "execution_time": round(time.time() - start_time, 3),
-                    "status": "error",
-                }
-            ),
-            500,
-        )
+        return jsonify(
+            {
+                "error": str(e),
+                "execution_time": round(time.time() - start_time, 3),
+                "status": "error",
+            }
+        ), 500
 
 
 @app.route("/model_info", methods=["GET"])
-def model_info():
+def model_info() -> Any:
     """Информация о модели"""
     if model is None:
         return jsonify({"error": "Модель не загружена"}), 500
@@ -255,7 +253,7 @@ def model_info():
 
 
 @app.route("/example", methods=["GET"])
-def get_example():
+def get_example() -> Any:
     """Пример данных для предсказания"""
     return jsonify(
         {
@@ -285,10 +283,13 @@ def get_example():
 
 
 @app.route("/features", methods=["GET"])
-def get_features():
+def get_features() -> Any:
     """Список всех признаков модели"""
     if model is None:
         return jsonify({"error": "Модель не загружена"}), 500
+
+    if model.feature_names is None:
+        return jsonify({"error": "Признаки модели не загружены"}), 500
 
     return jsonify(
         {
@@ -298,9 +299,7 @@ def get_features():
                 "temporal": [
                     f
                     for f in model.feature_names
-                    if any(
-                        x in f for x in ["hour", "week", "morning", "afternoon", "evening", "night"]
-                    )
+                    if any(x in f for x in ["hour", "week", "morning", "afternoon", "evening", "night"])
                 ],
                 "device": [
                     f
@@ -339,7 +338,7 @@ def get_features():
 
 
 @app.route("/stats", methods=["GET"])
-def get_stats():
+def get_stats() -> Any:
     """Статистика использования API"""
     return jsonify(
         {
@@ -372,7 +371,8 @@ if __name__ == "__main__":
         print("   GET  /stats - статистика API")
 
         print("🌐 Сервер доступен по адресу: http://localhost:5001")
-        print(f"🔧 Количество признаков: {len(model.feature_names)}")
+        if model and model.feature_names:
+            print(f"🔧 Количество признаков: {len(model.feature_names)}")
 
         # Запускаем сервер
         app.run(host="0.0.0.0", port=5001, debug=False)

@@ -1,5 +1,6 @@
 import os
 import pickle
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -13,13 +14,13 @@ class SberAutoModel:
     Модель для предсказания целевых действий на сайте СберАвтоподписка
     """
 
-    def __init__(self):
-        self.model = None
-        self.feature_names = None
-        self.target_actions = None
-        self.scaler = None
+    def __init__(self) -> None:
+        self.model: Optional[RandomForestClassifier] = None
+        self.feature_names: Optional[List[str]] = None
+        self.target_actions: Optional[List[str]] = None
+        self.scaler: Optional[Any] = None
 
-    def load_data(self):
+    def load_data(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Загрузка и подготовка данных"""
         print("📂 Загружаем данные...")
 
@@ -32,7 +33,7 @@ class SberAutoModel:
 
         return sessions, hits
 
-    def define_target_actions(self, hits):
+    def define_target_actions(self, hits: pd.DataFrame) -> List[str]:
         """Определение целевых действий с расширенной логикой"""
         print("🎯 Определяем целевые действия...")
 
@@ -75,11 +76,14 @@ class SberAutoModel:
         print(f"📋 Примеры: {self.target_actions[:5]}")
         return self.target_actions
 
-    def create_features(self, sessions, hits):
+    def create_features(self, sessions: pd.DataFrame, hits: pd.DataFrame) -> pd.DataFrame:
         """Создание признаков"""
         print("🔧 Создаем признаки...")
 
         # Создание целевой переменной с расширенной логикой
+        if self.target_actions is None:
+            raise ValueError("Целевые действия не определены. Сначала вызовите define_target_actions.")
+            
         hits["is_target"] = hits["event_action"].apply(
             lambda x: 1 if any(key in str(x).lower() for key in self.target_actions) else 0
         )
@@ -240,7 +244,7 @@ class SberAutoModel:
         print(f"✅ Создано {len(df)} сессий с признаками")
         return df
 
-    def prepare_features(self, df):
+    def prepare_features(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
         """Подготовка признаков для модели"""
         print("🔧 Подготавливаем признаки для модели...")
 
@@ -319,7 +323,7 @@ class SberAutoModel:
 
         return X, Y
 
-    def optimize_hyperparameters(self, X, y):
+    def optimize_hyperparameters(self, X: pd.DataFrame, y: pd.Series) -> RandomForestClassifier:
         """Оптимизация гиперпараметров модели"""
         print("🔧 Оптимизируем гиперпараметры...")
 
@@ -351,7 +355,7 @@ class SberAutoModel:
 
         return grid_search.best_estimator_
 
-    def train_model(self, X, y):
+    def train_model(self, X: pd.DataFrame, y: pd.Series) -> float:
         """Обучение модели"""
         print("🤖 Обучаем модель...")
 
@@ -367,7 +371,7 @@ class SberAutoModel:
         y_pred = self.model.predict(X_test)
         y_pred_proba = self.model.predict_proba(X_test)[:, 1]
 
-        roc_auc = roc_auc_score(y_test, y_pred_proba)
+        roc_auc = float(roc_auc_score(y_test, y_pred_proba))
 
         print(f"📊 Размер обучающей выборки: {X_train.shape}")
         print(f"📊 Размер тестовой выборки: {X_test.shape}")
@@ -396,7 +400,7 @@ class SberAutoModel:
 
         return roc_auc
 
-    def save_model(self, filename="../build/sber_auto_model.pkl"):
+    def save_model(self, filename: str = "../build/sber_auto_model.pkl") -> None:
         """Сохранение модели"""
         # Создаем директорию build если её нет
         os.makedirs("../build", exist_ok=True)
@@ -414,7 +418,7 @@ class SberAutoModel:
 
         print("✅ Модель сохранена")
 
-    def load_model(self, filename="sber_auto_model.pkl"):
+    def load_model(self, filename: str = "sber_auto_model.pkl") -> None:
         """Загрузка модели"""
         print(f"📂 Загружаем модель из {filename}...")
 
@@ -427,7 +431,7 @@ class SberAutoModel:
 
         print("✅ Модель загружена")
 
-    def predict(self, data):
+    def predict(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Предсказание для новых данных
 
@@ -439,6 +443,9 @@ class SberAutoModel:
         """
         if self.model is None:
             raise ValueError("Модель не загружена. Сначала загрузите или обучите модель.")
+
+        if self.feature_names is None:
+            raise ValueError("Признаки модели не загружены.")
 
         # Создаем DataFrame из входных данных
         df_input = pd.DataFrame([data])
@@ -470,7 +477,7 @@ class SberAutoModel:
             "confidence_level": confidence_level,
         }
 
-    def predict_batch(self, data_list):
+    def predict_batch(self, data_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Пакетное предсказание с обработкой ошибок
 
@@ -500,7 +507,7 @@ class SberAutoModel:
         return results
 
 
-def train_and_save_model():
+def train_and_save_model() -> SberAutoModel:
     """Обучение и сохранение модели"""
     print("🚀 Запуск обучения модели СберАвтоподписка")
     print("=" * 60)

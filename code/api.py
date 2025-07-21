@@ -97,13 +97,16 @@ def predict():
 
     except Exception as e:
         logger.error(f"❌ Ошибка предсказания: {e}")
-        return jsonify(
-            {
-                "error": str(e),
-                "execution_time": round(time.time() - start_time, 3),
-                "status": "error",
-            }
-        ), 500
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "execution_time": round(time.time() - start_time, 3),
+                    "status": "error",
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/predict_batch", methods=["POST"])
@@ -191,9 +194,8 @@ def predict_batch():
         # Статистика результатов
         successful_predictions = [r for r in results if "error" not in r]
         if successful_predictions:
-            avg_probability = (
-                sum(r["probability"] for r in successful_predictions)
-                / len(successful_predictions)
+            avg_probability = sum(r["probability"] for r in successful_predictions) / len(
+                successful_predictions
             )
             high_confidence_count = sum(
                 1 for r in successful_predictions if r["confidence_level"] == "высокая"
@@ -204,11 +206,11 @@ def predict_batch():
                 "failed_predictions": len(results) - len(successful_predictions),
                 "average_probability": round(avg_probability * 100, 2),
                 "high_confidence_predictions": high_confidence_count,
-                "high_confidence_percentage": round(
-                    high_confidence_count / len(successful_predictions) * 100, 2
-                )
-                if successful_predictions
-                else 0,
+                "high_confidence_percentage": (
+                    round(high_confidence_count / len(successful_predictions) * 100, 2)
+                    if successful_predictions
+                    else 0
+                ),
             }
 
         logger.info(
@@ -219,13 +221,16 @@ def predict_batch():
 
     except Exception as e:
         logger.error(f"❌ Ошибка пакетного предсказания: {e}")
-        return jsonify(
-            {
-                "error": str(e),
-                "execution_time": round(time.time() - start_time, 3),
-                "status": "error",
-            }
-        ), 500
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "execution_time": round(time.time() - start_time, 3),
+                    "status": "error",
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/model_info", methods=["GET"])
@@ -238,8 +243,12 @@ def model_info():
         {
             "feature_count": len(model.feature_names) if model.feature_names else 0,
             "target_actions_count": len(model.target_actions) if model.target_actions else 0,
-            "feature_names": model.feature_names[:10] if model.feature_names else [],  # Первые 10 признаков
-            "target_actions": model.target_actions[:5] if model.target_actions else [],  # Первые 5 целевых действий
+            "feature_names": (
+                model.feature_names[:10] if model.feature_names else []
+            ),  # Первые 10 признаков
+            "target_actions": (
+                model.target_actions[:5] if model.target_actions else []
+            ),  # Первые 5 целевых действий
             "status": "loaded",
         }
     )
@@ -289,14 +298,24 @@ def get_features():
                 "temporal": [
                     f
                     for f in model.feature_names
-                    if any(x in f for x in ["hour", "week", "morning", "afternoon", "evening", "night"])
+                    if any(
+                        x in f for x in ["hour", "week", "morning", "afternoon", "evening", "night"]
+                    )
                 ],
                 "device": [
                     f
                     for f in model.feature_names
                     if any(
                         x in f
-                        for x in ["mobile", "android", "ios", "desktop", "tablet", "windows", "macos"]
+                        for x in [
+                            "mobile",
+                            "android",
+                            "ios",
+                            "desktop",
+                            "tablet",
+                            "windows",
+                            "macos",
+                        ]
                     )
                 ],
                 "geographic": [
@@ -358,4 +377,4 @@ if __name__ == "__main__":
         # Запускаем сервер
         app.run(host="0.0.0.0", port=5001, debug=False)
     else:
-        print("❌ Не удалось загрузить модель. Проверьте наличие файла sber_auto_model.pkl") 
+        print("❌ Не удалось загрузить модель. Проверьте наличие файла sber_auto_model.pkl")

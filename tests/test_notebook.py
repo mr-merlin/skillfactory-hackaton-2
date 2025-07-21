@@ -10,12 +10,14 @@ import os
 
 # Добавляем путь к модулям
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'code'))
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "code"))
+
 
 def test_jupyter_server():
     """Тест доступности Jupyter сервера"""
     print("🔍 Тестируем Jupyter сервер...")
-    
+
     try:
         # Проверяем основной URL
         response = requests.get("http://localhost:8889", timeout=5)
@@ -29,14 +31,15 @@ def test_jupyter_server():
         print(f"❌ Ошибка подключения к Jupyter: {e}")
         return False
 
+
 def test_notebook_file():
     """Тест файла ноутбука"""
     print("\n🔍 Проверяем файл ноутбука...")
-    
+
     try:
-        with open('../analysis_report.ipynb', 'r', encoding='utf-8') as f:
+        with open("../analysis_report.ipynb", "r", encoding="utf-8") as f:
             content = f.read()
-            
+
         if '"cells"' in content and '"metadata"' in content:
             print("✅ Файл ноутбука корректен")
             return True
@@ -47,19 +50,17 @@ def test_notebook_file():
         print(f"❌ Ошибка чтения файла: {e}")
         return False
 
+
 def main():
     """Основная функция"""
     print("🚀 ТЕСТИРОВАНИЕ JUPYTER NOTEBOOK")
     print("=" * 40)
-    
-    tests = [
-        ("Jupyter сервер", test_jupyter_server),
-        ("Файл ноутбука", test_notebook_file)
-    ]
-    
+
+    tests = [("Jupyter сервер", test_jupyter_server), ("Файл ноутбука", test_notebook_file)]
+
     passed = 0
     total = len(tests)
-    
+
     for test_name, test_func in tests:
         try:
             if test_func():
@@ -68,11 +69,11 @@ def main():
                 print(f"❌ Тест '{test_name}' провален")
         except Exception as e:
             print(f"❌ Тест '{test_name}' вызвал исключение: {e}")
-    
+
     print("\n" + "=" * 40)
     print(f"📊 РЕЗУЛЬТАТЫ:")
     print(f"   Пройдено: {passed}/{total} тестов")
-    
+
     if passed == total:
         print("🎉 JUPYTER NOTEBOOK ГОТОВ К РАБОТЕ!")
         print("\n📋 ДОСТУП:")
@@ -86,5 +87,6 @@ def main():
     else:
         print("⚠️ ЕСТЬ ПРОБЛЕМЫ С JUPYTER")
 
+
 if __name__ == "__main__":
-    main() 
+    main()

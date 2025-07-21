@@ -10,7 +10,8 @@ import sys
 import os
 
 # Добавляем путь к модулям
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'code'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "code"))
+
 
 def test_api_health():
     """Тест здоровья API"""
@@ -28,10 +29,11 @@ def test_api_health():
         print(f"❌ Ошибка подключения к API: {e}")
         return False
 
+
 def test_single_prediction():
     """Тест одиночного предсказания"""
     print("\n🔍 Тестируем одиночное предсказание...")
-    
+
     test_data = {
         "visit_number": 1,
         "total_hits": 5,
@@ -50,16 +52,12 @@ def test_single_prediction():
         "avg_time_per_page": 24.0,
         "bounce_rate": 0,
         "deep_engagement": 1,
-        "long_session": 0
+        "long_session": 0,
     }
-    
+
     try:
-        response = requests.post(
-            "http://localhost:5001/predict",
-            json=test_data,
-            timeout=10
-        )
-        
+        response = requests.post("http://localhost:5001/predict", json=test_data, timeout=10)
+
         if response.status_code == 200:
             data = response.json()
             print(f"✅ Предсказание успешно:")
@@ -74,10 +72,11 @@ def test_single_prediction():
         print(f"❌ Ошибка подключения: {e}")
         return False
 
+
 def test_batch_prediction():
     """Тест пакетного предсказания"""
     print("\n🔍 Тестируем пакетное предсказание...")
-    
+
     test_sessions = [
         {
             "visit_number": 1,
@@ -97,7 +96,7 @@ def test_batch_prediction():
             "avg_time_per_page": 24.0,
             "bounce_rate": 0,
             "deep_engagement": 1,
-            "long_session": 0
+            "long_session": 0,
         },
         {
             "visit_number": 3,
@@ -117,23 +116,21 @@ def test_batch_prediction():
             "avg_time_per_page": 40.0,
             "bounce_rate": 0,
             "deep_engagement": 1,
-            "long_session": 1
-        }
+            "long_session": 1,
+        },
     ]
-    
+
     try:
         response = requests.post(
-            "http://localhost:5001/predict_batch",
-            json={"sessions": test_sessions},
-            timeout=10
+            "http://localhost:5001/predict_batch", json={"sessions": test_sessions}, timeout=10
         )
-        
+
         if response.status_code == 200:
             data = response.json()
             print(f"✅ Пакетное предсказание успешно:")
             print(f"   Количество сессий: {data['total_sessions']}")
             print(f"   Время выполнения: {data['execution_time']:.3f}с")
-            for i, pred in enumerate(data['predictions']):
+            for i, pred in enumerate(data["predictions"]):
                 print(f"   Сессия {i+1}: {pred['conversion_probability']} конверсии")
             return True
         else:
@@ -143,13 +140,14 @@ def test_batch_prediction():
         print(f"❌ Ошибка подключения: {e}")
         return False
 
+
 def test_model_info():
     """Тест информации о модели"""
     print("\n🔍 Тестируем информацию о модели...")
-    
+
     try:
         response = requests.get("http://localhost:5001/model_info", timeout=5)
-        
+
         if response.status_code == 200:
             data = response.json()
             print(f"✅ Информация о модели:")
@@ -165,13 +163,14 @@ def test_model_info():
         print(f"❌ Ошибка подключения: {e}")
         return False
 
+
 def test_example_data():
     """Тест получения примера данных"""
     print("\n🔍 Тестируем получение примера данных...")
-    
+
     try:
         response = requests.get("http://localhost:5001/example", timeout=5)
-        
+
         if response.status_code == 200:
             data = response.json()
             print(f"✅ Пример данных получен:")
@@ -185,22 +184,23 @@ def test_example_data():
         print(f"❌ Ошибка подключения: {e}")
         return False
 
+
 def main():
     """Основная функция тестирования"""
     print("🚀 ЗАПУСК ТЕСТИРОВАНИЯ ПРОЕКТА")
     print("=" * 50)
-    
+
     tests = [
         ("Здоровье API", test_api_health),
         ("Одиночное предсказание", test_single_prediction),
         ("Пакетное предсказание", test_batch_prediction),
         ("Информация о модели", test_model_info),
-        ("Пример данных", test_example_data)
+        ("Пример данных", test_example_data),
     ]
-    
+
     passed = 0
     total = len(tests)
-    
+
     for test_name, test_func in tests:
         try:
             if test_func():
@@ -209,12 +209,12 @@ def main():
                 print(f"❌ Тест '{test_name}' провален")
         except Exception as e:
             print(f"❌ Тест '{test_name}' вызвал исключение: {e}")
-    
+
     print("\n" + "=" * 50)
     print(f"📊 РЕЗУЛЬТАТЫ ТЕСТИРОВАНИЯ:")
     print(f"   Пройдено: {passed}/{total} тестов")
     print(f"   Успешность: {passed/total*100:.1f}%")
-    
+
     if passed == total:
         print("🎉 ВСЕ ТЕСТЫ ПРОЙДЕНЫ УСПЕШНО!")
         print("\n📋 СТАТУС СЕРВИСОВ:")
@@ -230,5 +230,6 @@ def main():
         print("⚠️ НЕКОТОРЫЕ ТЕСТЫ ПРОВАЛЕНЫ")
         sys.exit(1)
 
+
 if __name__ == "__main__":
-    main() 
+    main()

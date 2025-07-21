@@ -197,61 +197,11 @@ jobs:
       #     [ -d "charts" ] || (echo "❌ Папка 'charts' не найдена" && exit 1)
       #     # ... остальная логика проверки графиков
 
-  # Сборка и деплой (опционально)
-  build:
-    name: 🏗️ Сборка
-    runs-on: ubuntu-latest
-    needs: [lint, test, api-test, docs, analysis]
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: 📥 Клонирование репозитория
-        uses: actions/checkout@v4
-
-      - name: 🐍 Настройка Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-
-      - name: 📦 Установка зависимостей
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: 📦 Создание артефактов
-        run: |
-          echo "📦 Создание артефактов..."
-          mkdir -p artifacts
-
-          # Копируем код
-          cp -r code/* artifacts/ 2>/dev/null || echo "⚠️ Папка code пуста или не существует"
-
-          # Копируем графики
-          cp -r charts/* artifacts/ 2>/dev/null || echo "⚠️ Папка charts пуста или не существует"
-
-          # Копируем модель (если есть)
-          cp -r build/* artifacts/ 2>/dev/null || echo "⚠️ Папка build пуста или не существует"
-
-          # Копируем конфигурационные файлы
-          cp requirements.txt artifacts/ 2>/dev/null || echo "⚠️ requirements.txt не найден"
-          cp run_project.sh artifacts/ 2>/dev/null || echo "⚠️ run_project.sh не найден"
-          cp analysis_report.ipynb artifacts/ 2>/dev/null || echo "⚠️ analysis_report.ipynb не найден"
-          cp pyproject.toml artifacts/ 2>/dev/null || echo "⚠️ pyproject.toml не найден"
-
-          echo "📦 Артефакты созданы"
-
-      - name: 📤 Загрузка артефактов
-        uses: actions/upload-artifact@v3
-        with:
-          name: sber-auto-model
-          path: artifacts/
-          retention-days: 30
-
   # Уведомления
   notify:
     name: 📢 Уведомления
     runs-on: ubuntu-latest
-    needs: [lint, test, api-test, docs, analysis, build]
+    needs: [lint, test, api-test, docs, analysis]
     if: always()
 
     steps:

@@ -3,11 +3,10 @@
 🧪 Тестовый скрипт для проверки всех компонентов проекта
 """
 
-import requests
-import json
-import time
-import sys
 import os
+import sys
+
+import requests
 
 # Добавляем путь к модулям
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "code"))
@@ -20,7 +19,8 @@ def test_api_health():
         response = requests.get("http://localhost:5001/health", timeout=5)
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ API здоров: {data}")
+            print(f"✅ API здоров: {data['status']}")
+            print(f"📊 Модель загружена: {data['model_loaded']}")
             return True
         else:
             print(f"❌ API не отвечает: {response.status_code}")
@@ -60,10 +60,10 @@ def test_single_prediction():
 
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Предсказание успешно:")
+            print("✅ Предсказание успешно:")
             print(f"   Вероятность конверсии: {data['conversion_probability']}")
             print(f"   Время выполнения: {data['execution_time']:.3f}с")
-            print(f"   Будет конвертировать: {data['will_convert']}")
+            print(f"   Статус: {data['status']}")
             return True
         else:
             print(f"❌ Ошибка предсказания: {response.status_code}")
@@ -103,8 +103,8 @@ def test_batch_prediction():
             "total_hits": 15,
             "unique_pages": 8,
             "session_duration": 600,
-            "visit_hour": 10,
-            "visit_weekday": 1,
+            "visit_hour": 16,
+            "visit_weekday": 3,
             "is_weekend": 0,
             "is_mobile": 0,
             "is_android": 0,
@@ -127,11 +127,11 @@ def test_batch_prediction():
 
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Пакетное предсказание успешно:")
+            print("✅ Пакетное предсказание успешно:")
             print(f"   Количество сессий: {data['total_sessions']}")
             print(f"   Время выполнения: {data['execution_time']:.3f}с")
             for i, pred in enumerate(data["predictions"]):
-                print(f"   Сессия {i+1}: {pred['conversion_probability']} конверсии")
+                print(f"   Сессия {i + 1}: {pred['conversion_probability']} конверсии")
             return True
         else:
             print(f"❌ Ошибка пакетного предсказания: {response.status_code}")
@@ -150,8 +150,7 @@ def test_model_info():
 
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Информация о модели:")
-            print(f"   Тип модели: {data['model_type']}")
+            print("✅ Информация о модели:")
             print(f"   Количество признаков: {data['feature_count']}")
             print(f"   Количество целевых действий: {data['target_actions_count']}")
             print(f"   Статус: {data['status']}")
@@ -173,8 +172,8 @@ def test_example_data():
 
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Пример данных получен:")
-            print(f"   Количество полей: {len(data['example'])}")
+            print("✅ Пример данных получен:")
+            print(f"   Количество полей: {len(data['example_data'])}")
             print(f"   Описание: {data['description']}")
             return True
         else:
@@ -211,18 +210,18 @@ def main():
             print(f"❌ Тест '{test_name}' вызвал исключение: {e}")
 
     print("\n" + "=" * 50)
-    print(f"📊 РЕЗУЛЬТАТЫ ТЕСТИРОВАНИЯ:")
+    print("📊 РЕЗУЛЬТАТЫ ТЕСТИРОВАНИЯ:")
     print(f"   Пройдено: {passed}/{total} тестов")
-    print(f"   Успешность: {passed/total*100:.1f}%")
+    print(f"   Успешность: {passed / total * 100:.1f}%")
 
     if passed == total:
         print("🎉 ВСЕ ТЕСТЫ ПРОЙДЕНЫ УСПЕШНО!")
         print("\n📋 СТАТУС СЕРВИСОВ:")
         print("   ✅ API сервер: http://localhost:5001")
         print("   ✅ Jupyter Notebook: http://localhost:8889")
-        print("\n🔗 Доступные эндпоинты:")
+        print("\n🌐 ДОСТУПНЫЕ ЭНДПОИНТЫ:")
         print("   GET  /health - проверка здоровья")
-        print("   POST /predict - одиночное предсказание")
+        print("   POST /predict - предсказание для одной сессии")
         print("   POST /predict_batch - пакетное предсказание")
         print("   GET  /model_info - информация о модели")
         print("   GET  /example - пример данных")

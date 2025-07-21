@@ -1,9 +1,11 @@
-import pandas as pd
-import numpy as np
+import os
 import pickle
+
+import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
-from sklearn.metrics import roc_auc_score, classification_report
+from sklearn.metrics import classification_report, roc_auc_score
+from sklearn.model_selection import GridSearchCV, cross_val_score, train_test_split
 
 
 class SberAutoModel:
@@ -306,13 +308,14 @@ class SberAutoModel:
 
         print(f"📊 Признаки: {X.shape}")
         print(f"🎯 Целевая переменная: {Y.shape}")
-        print(f"📈 Конверсия: {Y.mean()*100:.2f}%")
+        print(f"📈 Конверсия: {Y.mean() * 100:.2f}%")
         print(
-            f"🌍 Географических признаков: {len([f for f in feature_cols if 'city' in f or 'moscow' in f or 'spb' in f])}"
+            f"🌍 Географических признаков: "
+            f"{len([f for f in feature_cols if 'city' in f or 'moscow' in f or 'spb' in f])}"
         )
-        print(
-            f"⏰ Временных признаков: {len([f for f in feature_cols if 'hour' in f or 'week' in f or 'morning' in f or 'afternoon' in f or 'evening' in f or 'night' in f])}"
-        )
+        temporal_keywords = ["hour", "week", "morning", "afternoon", "evening", "night"]
+        temporal_features = [f for f in feature_cols if any(kw in f for kw in temporal_keywords)]
+        print(f"⏰ Временных признаков: {len(temporal_features)}")
 
         return X, Y
 
@@ -374,7 +377,10 @@ class SberAutoModel:
 
         # Анализ важности признаков
         feature_importance = pd.DataFrame(
-            {"feature": self.feature_names, "importance": self.model.feature_importances_}
+            {
+                "feature": self.feature_names,
+                "importance": self.model.feature_importances_,
+            }
         ).sort_values("importance", ascending=False)
 
         print("\n🏆 Топ-20 важных признаков:")
@@ -384,7 +390,8 @@ class SberAutoModel:
         # Кросс-валидация
         cv_scores = cross_val_score(self.model, X, y, cv=5, scoring="roc_auc")
         print(
-            f"\n📊 Кросс-валидация ROC-AUC: {cv_scores.mean():.4f} (+/- {cv_scores.std() * 2:.4f})"
+            f"\n📊 Кросс-валидация ROC-AUC: "
+            f"{cv_scores.mean():.4f} (+/- {cv_scores.std() * 2:.4f})"
         )
 
         return roc_auc
@@ -392,8 +399,6 @@ class SberAutoModel:
     def save_model(self, filename="../build/sber_auto_model.pkl"):
         """Сохранение модели"""
         # Создаем директорию build если её нет
-        import os
-
         os.makedirs("../build", exist_ok=True)
 
         print(f"💾 Сохраняем модель в {filename}...")
@@ -461,7 +466,7 @@ class SberAutoModel:
             "prediction": int(prediction),
             "probability": float(probability),
             "will_convert": bool(prediction),
-            "conversion_probability": f"{probability*100:.2f}%",
+            "conversion_probability": f"{probability * 100:.2f}%",
             "confidence_level": confidence_level,
         }
 
@@ -521,11 +526,12 @@ def train_and_save_model():
     # Сохранение модели
     model.save_model()
 
-    print(f"\n🎉 Модель обучена и сохранена!")
+    print("🎉 Модель обучена и сохранена!")
     print(f"📊 ROC-AUC: {roc_auc:.4f}")
-    print(f"✅ Целевой показатель 0.65 {'достигнут' if roc_auc >= 0.65 else 'НЕ достигнут'}")
+    print(f"✅ Целевой показатель 0.65 " f"{'достигнут' if roc_auc >= 0.65 else 'НЕ достигнут'}")
     print(
-        f"📈 Улучшение по сравнению с базовой моделью: {((roc_auc - 0.8859) / 0.8859 * 100):.1f}%"
+        f"📈 Улучшение по сравнению с базовой моделью: "
+        f"{((roc_auc - 0.8859) / 0.8859 * 100):.1f}%"
     )
 
     return model
@@ -562,7 +568,7 @@ if __name__ == "__main__":
     }
 
     result = model.predict(test_data)
-    print(f"📊 Результат предсказания:")
+    print("📊 Результат предсказания:")
     print(f"   Конверсия: {result['conversion_probability']}")
     print(f"   Будет ли конверсия: {result['will_convert']}")
     print(f"   Вероятность: {result['probability']:.4f}")

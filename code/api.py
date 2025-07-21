@@ -1,11 +1,13 @@
-from flask import Flask, request, jsonify
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from sber_auto_model import SberAutoModel
-import time
 import logging
+import os
+import sys
+import time
+
+from flask import Flask, jsonify, request
+
+# Добавляем путь к модулям и импортируем
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # noqa: E402
+from sber_auto_model import SberAutoModel  # noqa: E402
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -90,7 +92,8 @@ def predict():
 
         logger.info(f"✅ Предсказание выполнено за {result['execution_time']}с")
         logger.info(
-            f"📊 Результат: {result['conversion_probability']} (уверенность: {result['confidence_level']})"
+            f"📊 Результат: {result['conversion_probability']} "
+            f"(уверенность: {result['confidence_level']})"
         )
 
         return jsonify(result)
@@ -214,7 +217,8 @@ def predict_batch():
             }
 
         logger.info(
-            f"✅ Пакетное предсказание для {len(sessions)} сессий за {response['execution_time']}с"
+            f"✅ Пакетное предсказание для {len(sessions)} сессий "
+            f"за {response['execution_time']}с"
         )
 
         return jsonify(response)
@@ -243,12 +247,8 @@ def model_info():
         {
             "feature_count": len(model.feature_names) if model.feature_names else 0,
             "target_actions_count": len(model.target_actions) if model.target_actions else 0,
-            "feature_names": (
-                model.feature_names[:10] if model.feature_names else []
-            ),  # Первые 10 признаков
-            "target_actions": (
-                model.target_actions[:5] if model.target_actions else []
-            ),  # Первые 5 целевых действий
+            "feature_names": model.feature_names[:10] if model.feature_names else [],
+            "target_actions": model.target_actions[:5] if model.target_actions else [],
             "status": "loaded",
         }
     )
@@ -371,10 +371,10 @@ if __name__ == "__main__":
         print("   GET  /features - список признаков")
         print("   GET  /stats - статистика API")
 
-        print(f"\n🌐 Сервер доступен по адресу: http://localhost:5001")
+        print("🌐 Сервер доступен по адресу: http://localhost:5001")
         print(f"🔧 Количество признаков: {len(model.feature_names)}")
 
         # Запускаем сервер
         app.run(host="0.0.0.0", port=5001, debug=False)
     else:
-        print("❌ Не удалось загрузить модель. Проверьте наличие файла sber_auto_model.pkl")
+        print("❌ Не удалось загрузить модель. " "Проверьте наличие файла sber_auto_model.pkl")

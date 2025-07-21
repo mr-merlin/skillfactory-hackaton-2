@@ -1,6 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sber-auto-model"
+version = "1.0.0"
+description = "Модель машинного обучения для предсказания конверсии на сайте СберАвтоподписка"
+authors = [
+    {name = "Team", email = "team@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "pandas>=1.5.0",
+    "numpy>=1.21.0",
+    "matplotlib>=3.5.0",
+    "seaborn>=0.11.0",
+    "scikit-learn>=1.1.0",
+    "flask>=2.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "requests>=2.28.0",
+    "jupyter>=1.0.0",
+    "nbconvert>=7.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/example/sber-auto-model"
+Repository = "https://github.com/example/sber-auto-model"
+Documentation = "https://github.com/example/sber-auto-model#readme"
+
 [tool.black]
 line-length = 100
-target-version = ['py311']
+target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -26,7 +66,7 @@ use_parentheses = true
 ensure_newline_before_comments = true
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -41,12 +81,18 @@ warn_unreachable = true
 strict_equality = true
 
 [tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q --strict-markers --strict-config"
 testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
+python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=code",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-report=term-missing",
+]
 
 [tool.coverage.run]
 source = ["code"]

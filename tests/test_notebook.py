@@ -3,14 +3,12 @@
 🧪 Тест Jupyter ноутбука
 """
 
-import requests
-import json
-import time
 import os
-
-# Добавляем путь к модулям
 import sys
 
+import requests
+
+# Добавляем путь к модулям
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "code"))
 
 
@@ -25,7 +23,7 @@ def test_jupyter_server():
             print("✅ Jupyter сервер доступен")
             return True
         else:
-            print(f"❌ Jupyter сервер не отвечает: {response.status_code}")
+            print(f"❌ Jupyter сервер недоступен: {response.status_code}")
             return False
     except Exception as e:
         print(f"❌ Ошибка подключения к Jupyter: {e}")
@@ -71,7 +69,7 @@ def main():
             print(f"❌ Тест '{test_name}' вызвал исключение: {e}")
 
     print("\n" + "=" * 40)
-    print(f"📊 РЕЗУЛЬТАТЫ:")
+    print("📊 РЕЗУЛЬТАТЫ:")
     print(f"   Пройдено: {passed}/{total} тестов")
 
     if passed == total:
@@ -79,9 +77,9 @@ def main():
         print("\n📋 ДОСТУП:")
         print("   🌐 URL: http://localhost:8889")
         print("   📁 Файл: analysis_report.ipynb")
-        print("\n💡 Для работы с ноутбуком:")
-        print("   1. Откройте браузер")
-        print("   2. Перейдите по адресу: http://localhost:8889")
+        print("\n📖 ИНСТРУКЦИИ:")
+        print("   1. Запустите Jupyter Notebook")
+        print("   2. Откройте браузер")
         print("   3. Найдите файл analysis_report.ipynb")
         print("   4. Запустите ячейки по порядку")
     else:

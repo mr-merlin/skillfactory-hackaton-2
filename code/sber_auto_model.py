@@ -82,8 +82,10 @@ class SberAutoModel:
 
         # Создание целевой переменной с расширенной логикой
         if self.target_actions is None:
-            raise ValueError("Целевые действия не определены. Сначала вызовите define_target_actions.")
-            
+            raise ValueError(
+                "Целевые действия не определены. Сначала вызовите define_target_actions."
+            )
+
         hits["is_target"] = hits["event_action"].apply(
             lambda x: 1 if any(key in str(x).lower() for key in self.target_actions) else 0
         )

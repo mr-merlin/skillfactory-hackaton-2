@@ -226,13 +226,16 @@ def predict_batch() -> Any:
 
     except Exception as e:
         logger.error(f"❌ Ошибка пакетного предсказания: {e}")
-        return jsonify(
-            {
-                "error": str(e),
-                "execution_time": round(time.time() - start_time, 3),
-                "status": "error",
-            }
-        ), 500
+        return (
+            jsonify(
+                {
+                    "error": str(e),
+                    "execution_time": round(time.time() - start_time, 3),
+                    "status": "error",
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/model_info", methods=["GET"])
@@ -299,7 +302,9 @@ def get_features() -> Any:
                 "temporal": [
                     f
                     for f in model.feature_names
-                    if any(x in f for x in ["hour", "week", "morning", "afternoon", "evening", "night"])
+                    if any(
+                        x in f for x in ["hour", "week", "morning", "afternoon", "evening", "night"]
+                    )
                 ],
                 "device": [
                     f

@@ -50,7 +50,7 @@ def test_high_conversion_scenario():
         "total_hits": 15,
         "unique_pages": 8,
         "session_duration": 600,
-        "visit_hour": 19, 
+        "visit_hour": 19,
         "is_weekend": 0,
         "is_mobile": 1,
         "is_android": 0,

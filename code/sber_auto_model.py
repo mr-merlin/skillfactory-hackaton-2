@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
-    classification_report, 
-    roc_auc_score, 
+    classification_report,
+    roc_auc_score,
     average_precision_score,
     brier_score_loss,
     f1_score,
@@ -15,7 +15,7 @@ from sklearn.metrics import (
     precision_score,
     balanced_accuracy_score,
     cohen_kappa_score,
-    matthews_corrcoef
+    matthews_corrcoef,
 )
 from sklearn.model_selection import GridSearchCV, cross_val_score, train_test_split
 
@@ -42,7 +42,9 @@ class SberAutoModel:
         print(f"📊 Сессии: {sessions.shape}")
         print(f"📊 Хиты: {hits.shape}")
         print(f"📊 Общее количество хитов: {hits.shape[0]:,}")
-        print(f"📊 Среднее хитов на сессию: {hits.groupby('session_id')['hit_number'].max().mean():.1f}")
+        print(
+            f"📊 Среднее хитов на сессию: {hits.groupby('session_id')['hit_number'].max().mean():.1f}"
+        )
 
         return sessions, hits
 
@@ -56,7 +58,7 @@ class SberAutoModel:
         # Cписок ключевых слов для целевых действий
         target_keywords = [
             "заявка",
-            "звонок", 
+            "звонок",
             "оформление",
             "callback",
             "покупка",
@@ -92,12 +94,11 @@ class SberAutoModel:
 
         print(f"✅ Найдено {len(self.target_actions)} целевых действий")
         print(f"📋 Примеры: {self.target_actions[:5]}")
-        
 
-        total_target_events = hits[hits['event_action'].isin(self.target_actions)].shape[0]
+        total_target_events = hits[hits["event_action"].isin(self.target_actions)].shape[0]
         print(f"📊 Всего целевых событий: {total_target_events:,}")
         print(f"📊 Доля целевых событий: {total_target_events/len(hits)*100:.1f}%")
-        
+
         return self.target_actions
 
     def create_features(self, sessions: pd.DataFrame, hits: pd.DataFrame) -> pd.DataFrame:
@@ -404,13 +405,13 @@ class SberAutoModel:
         recall = float(recall_score(y_test, y_pred))
         f1 = float(f1_score(y_test, y_pred))
         accuracy = float((y_pred == y_test).mean())
-        
+
         # Дополнительные метрики
         specificity = float(((y_pred == 0) & (y_test == 0)).sum() / (y_test == 0).sum())
         balanced_acc = float(balanced_accuracy_score(y_test, y_pred))
         kappa = float(cohen_kappa_score(y_test, y_pred))
         mcc = float(matthews_corrcoef(y_test, y_pred))
-        
+
         # Метрики для несбалансированных данных
         avg_precision = float(average_precision_score(y_test, y_pred_proba))
         brier = float(brier_score_loss(y_test, y_pred_proba))
@@ -419,7 +420,7 @@ class SberAutoModel:
         print(f"📊 Размер тестовой выборки: {X_test.shape}")
         print(f"📈 ROC-AUC: {roc_auc:.4f}")
         print(f"📊 Цель 0.65 превышена на {((roc_auc - 0.65) / 0.65 * 100):.1f}%")
-        
+
         print("\n📊 ДЕТАЛЬНЫЕ МЕТРИКИ КАЧЕСТВА:")
         print(f"   Precision: {precision:.3f}")
         print(f"   Recall: {recall:.3f}")
@@ -431,7 +432,7 @@ class SberAutoModel:
         print(f"   Matthews Correlation: {mcc:.3f}")
         print(f"   Average Precision: {avg_precision:.3f}")
         print(f"   Brier Score: {brier:.3f}")
-        
+
         print("\n📋 Отчет о классификации:")
         print(classification_report(y_test, y_pred))
 
@@ -451,33 +452,33 @@ class SberAutoModel:
         cv_roc_scores = cross_val_score(self.model, X, y, cv=5, scoring="roc_auc")
         cv_precision_scores = cross_val_score(self.model, X, y, cv=5, scoring="precision")
         cv_recall_scores = cross_val_score(self.model, X, y, cv=5, scoring="recall")
-        
-        print(
-            f"\n📊 КРОСС-ВАЛИДАЦИЯ:"
-        )
+
+        print(f"\n📊 КРОСС-ВАЛИДАЦИЯ:")
         print(f"   ROC-AUC: {cv_roc_scores.mean():.4f} (+/- {cv_roc_scores.std() * 2:.4f})")
-        print(f"   Precision: {cv_precision_scores.mean():.3f} (+/- {cv_precision_scores.std() * 2:.3f})")
+        print(
+            f"   Precision: {cv_precision_scores.mean():.3f} (+/- {cv_precision_scores.std() * 2:.3f})"
+        )
         print(f"   Recall: {cv_recall_scores.mean():.3f} (+/- {cv_recall_scores.std() * 2:.3f})")
 
         # Сохраняем метрики для возврата
         self.metrics = {
-            'roc_auc': roc_auc,
-            'precision': precision,
-            'recall': recall,
-            'f1_score': f1,
-            'accuracy': accuracy,
-            'specificity': specificity,
-            'balanced_accuracy': balanced_acc,
-            'kappa': kappa,
-            'mcc': mcc,
-            'avg_precision': avg_precision,
-            'brier_score': brier,
-            'cv_roc_mean': cv_roc_scores.mean(),
-            'cv_roc_std': cv_roc_scores.std(),
-            'cv_precision_mean': cv_precision_scores.mean(),
-            'cv_precision_std': cv_precision_scores.std(),
-            'cv_recall_mean': cv_recall_scores.mean(),
-            'cv_recall_std': cv_recall_scores.std()
+            "roc_auc": roc_auc,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "accuracy": accuracy,
+            "specificity": specificity,
+            "balanced_accuracy": balanced_acc,
+            "kappa": kappa,
+            "mcc": mcc,
+            "avg_precision": avg_precision,
+            "brier_score": brier,
+            "cv_roc_mean": cv_roc_scores.mean(),
+            "cv_roc_std": cv_roc_scores.std(),
+            "cv_precision_mean": cv_precision_scores.mean(),
+            "cv_precision_std": cv_precision_scores.std(),
+            "cv_recall_mean": cv_recall_scores.mean(),
+            "cv_recall_std": cv_recall_scores.std(),
         }
 
         return roc_auc
@@ -596,7 +597,7 @@ def train_and_save_model() -> SberAutoModel:
 
     # Создание экземпляра модели
     model = SberAutoModel()
-    
+
     # Проверяем, есть ли уже сохраненная модель
     model_path = "../build/sber_auto_model.pkl"
     if os.path.exists(model_path):

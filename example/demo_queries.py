@@ -46,7 +46,7 @@ def main():
         "total_hits": 15,
         "unique_pages": 8,
         "session_duration": 600,
-        "visit_hour": 14,
+        "visit_hour": 19,  # Обновлено на пиковые часы
         "visit_weekday": 2,
         "is_weekend": 0,
         "is_mobile": 1,

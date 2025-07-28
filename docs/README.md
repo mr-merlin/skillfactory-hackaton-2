@@ -98,6 +98,8 @@ curl -X POST http://localhost:5001/predict \
 
 ## Метрики качества
 
+- Добавить classification report
+- Class wehth
 - **ROC-AUC**: 0.8859 (превышает цель 0.65)
 - **Время ответа API**: <0.1 секунды
 - **Количество признаков**: 40+

@@ -160,6 +160,15 @@ def test_model_info():
             print(f"   Количество признаков: {data['feature_count']}")
             print(f"   Количество целевых действий: {data['target_actions_count']}")
             print(f"   Статус: {data['status']}")
+            
+            if 'model_metrics' in data:
+                metrics = data['model_metrics']
+                print("📊 Метрики модели:")
+                print(f"   ROC-AUC: {metrics.get('roc_auc', 'N/A')}")
+                print(f"   Конверсия: {metrics.get('conversion_rate', 'N/A')}")
+                print(f"   Всего хитов: {metrics.get('total_hits', 'N/A')}")
+                print(f"   Всего сессий: {metrics.get('total_sessions', 'N/A')}")
+                print(f"   Целевых действий: {metrics.get('target_actions_found', 'N/A')}")
             return True
         else:
             print(f"⚠️ Ошибка получения информации: {response.status_code}")

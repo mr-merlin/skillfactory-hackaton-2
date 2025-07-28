@@ -14,7 +14,7 @@ repos:
     hooks:
       - id: black
         language_version: python3
-        args: [--line-length=88]
+        args: [--line-length=100]
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
@@ -26,7 +26,16 @@ repos:
     rev: 7.0.0
     hooks:
       - id: flake8
-        args: [--max-line-length=88]
+        args: [--max-line-length=100]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests]
+        args: [--ignore-missing-imports, --no-strict-optional]
+        exclude: ^(tests/|venv/|build/|data/)
+        stages: [manual]
 
   - repo: local
     hooks:
@@ -37,6 +46,16 @@ repos:
         pass_filenames: false
         always_run: true
         args: [tests/]
+        stages: [manual]
+
+  - repo: local
+    hooks:
+      - id: test-notebook
+        name: test-notebook
+        entry: python tests/test_notebook.py
+        language: system
+        pass_filenames: false
+        always_run: true
         stages: [manual]
 
   - repo: local
@@ -61,9 +80,29 @@ repos:
 
   - repo: local
     hooks:
-      - id: test-notebook
-        name: test-notebook
-        entry: python tests/test_notebook.py
+      - id: check-readme
+        name: check-readme
+        entry: bash -c 'if [ ! -f "README.md" ]; then echo "❌ README.md не найден"; exit 1; fi; echo "✅ README.md найден"'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [manual]
+
+  - repo: local
+    hooks:
+      - id: check-structure
+        name: check-structure
+        entry: bash -c '[ -d "code" ] || (echo "❌ Папка code не найдена" && exit 1); [ -d "tests" ] || (echo "❌ Папка tests не найдена" && exit 1); [ -d "example" ] || (echo "❌ Папка example не найдена" && exit 1); [ -f "requirements.txt" ] || (echo "❌ requirements.txt не найден" && exit 1); [ -f "run_project.sh" ] || (echo "❌ run_project.sh не найден" && exit 1); [ -f "analysis_report.ipynb" ] || (echo "❌ analysis_report.ipynb не найден" && exit 1); echo "✅ Структура проекта корректна"'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [manual]
+
+  - repo: local
+    hooks:
+      - id: check-notebook
+        name: check-notebook
+        entry: jupyter nbconvert --to notebook --execute analysis_report.ipynb --output analysis_report_executed.ipynb
         language: system
         pass_filenames: false
         always_run: true

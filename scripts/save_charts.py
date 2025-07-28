@@ -107,9 +107,7 @@ def main() -> None:
     df["is_desktop"] = (df["device_category"] == "desktop").astype(int)
     df["is_tablet"] = (df["device_category"] == "tablet").astype(int)
     df["is_moscow"] = (df["geo_city"] == "Moscow").astype(int)
-    df["is_paid"] = (
-        ~df["utm_medium"].isin(["organic", "referral", "(none)"]).astype(int)
-    )
+    df["is_paid"] = ~df["utm_medium"].isin(["organic", "referral", "(none)"]).astype(int)
     df["avg_time_per_page"] = df["session_duration"] / df["total_hits"]
     df["avg_time_per_page"] = df["avg_time_per_page"].replace([np.inf, -np.inf], 0)
     df["bounce_rate"] = (df["total_hits"] == 1).astype(int)
@@ -124,9 +122,7 @@ def main() -> None:
     plt.title("Распределение целевых действий")
     plt.xlabel("Целевое действие")
     plt.ylabel("Количество сессий")
-    plt.savefig(
-        "charts/распределение целевых действий.png", bbox_inches="tight", dpi=300
-    )
+    plt.savefig("charts/распределение целевых действий.png", bbox_inches="tight", dpi=300)
     plt.close()
 
     # 2. Конверсия по городам
@@ -160,9 +156,7 @@ def main() -> None:
     plt.ylabel("Конверсия")
 
     plt.subplot(2, 2, 2)
-    os_conversion = (
-        df.groupby("device_os")["is_target"].agg(["mean", "count"]).reset_index()
-    )
+    os_conversion = df.groupby("device_os")["is_target"].agg(["mean", "count"]).reset_index()
     top_os = os_conversion[os_conversion["count"] > 1000]
     sns.barplot(data=top_os, x="device_os", y="mean")
     plt.title("Конверсия по ОС")
@@ -172,21 +166,15 @@ def main() -> None:
     plt.subplot(2, 2, 3)
     mobile_data = df[df["device_category"] == "mobile"]
     mobile_conversion = (
-        mobile_data.groupby("device_os")["is_target"]
-        .agg(["mean", "count"])
-        .reset_index()
+        mobile_data.groupby("device_os")["is_target"].agg(["mean", "count"]).reset_index()
     )
-    mobile_conversion = mobile_conversion[
-        mobile_conversion["device_os"].isin(["Android", "iOS"])
-    ]
+    mobile_conversion = mobile_conversion[mobile_conversion["device_os"].isin(["Android", "iOS"])]
     sns.barplot(data=mobile_conversion, x="device_os", y="mean")
     plt.title("Android vs iOS")
     plt.ylabel("Конверсия")
 
     plt.subplot(2, 2, 4)
-    traffic_conversion = (
-        df.groupby("utm_medium")["is_target"].agg(["mean", "count"]).reset_index()
-    )
+    traffic_conversion = df.groupby("utm_medium")["is_target"].agg(["mean", "count"]).reset_index()
     top_traffic = traffic_conversion[traffic_conversion["count"] > 500]
     sns.barplot(data=top_traffic, x="utm_medium", y="mean")
     plt.title("Конверсия по источникам")
@@ -201,9 +189,7 @@ def main() -> None:
     plt.figure(figsize=(15, 10))
 
     plt.subplot(2, 2, 1)
-    hourly_conversion = (
-        df.groupby("visit_hour")["is_target"].agg(["mean", "count"]).reset_index()
-    )
+    hourly_conversion = df.groupby("visit_hour")["is_target"].agg(["mean", "count"]).reset_index()
     sns.barplot(data=hourly_conversion, x="visit_hour", y="mean")
     plt.title("Конверсия по часам суток")
     plt.xlabel("Час")
@@ -271,18 +257,14 @@ def main() -> None:
 
     # 7. Конверсия по источникам трафика (отдельный график)
     plt.figure(figsize=(14, 8))
-    traffic_conversion = (
-        df.groupby("utm_medium")["is_target"].agg(["mean", "count"]).reset_index()
-    )
+    traffic_conversion = df.groupby("utm_medium")["is_target"].agg(["mean", "count"]).reset_index()
     top_traffic = traffic_conversion[traffic_conversion["count"] > 500]
     sns.barplot(data=top_traffic, x="utm_medium", y="mean")
     plt.title("Конверсия по источникам трафика")
     plt.xlabel("Источник трафика")
     plt.ylabel("Конверсия")
     plt.xticks(rotation=45)
-    plt.savefig(
-        "charts/конверсия по источникам трафика.png", bbox_inches="tight", dpi=300
-    )
+    plt.savefig("charts/конверсия по источникам трафика.png", bbox_inches="tight", dpi=300)
     plt.close()
 
     print("✅ Все графики сохранены в папку charts/")

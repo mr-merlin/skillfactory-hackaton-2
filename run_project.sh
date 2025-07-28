@@ -113,4 +113,4 @@ case $choice in
 esac
 
 echo ""
-echo "✅ Операция завершена!" 
+echo "✅ Операция завершена!"

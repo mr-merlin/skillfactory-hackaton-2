@@ -58,7 +58,9 @@ def test_single_prediction():
     }
 
     try:
-        response = requests.post("http://localhost:5001/predict", json=test_data, timeout=10)
+        response = requests.post(
+            "http://localhost:5001/predict", json=test_data, timeout=10
+        )
 
         if response.status_code == 200:
             data = response.json()
@@ -126,7 +128,9 @@ def test_batch_prediction():
 
     try:
         response = requests.post(
-            "http://localhost:5001/predict_batch", json={"sessions": test_sessions}, timeout=10
+            "http://localhost:5001/predict_batch",
+            json={"sessions": test_sessions},
+            timeout=10,
         )
 
         if response.status_code == 200:
@@ -168,7 +172,9 @@ def test_model_info():
                 print(f"   Конверсия: {metrics.get('conversion_rate', 'N/A')}")
                 print(f"   Всего хитов: {metrics.get('total_hits', 'N/A')}")
                 print(f"   Всего сессий: {metrics.get('total_sessions', 'N/A')}")
-                print(f"   Целевых действий: {metrics.get('target_actions_found', 'N/A')}")
+                print(
+                    f"   Целевых действий: {metrics.get('target_actions_found', 'N/A')}"
+                )
             return True
         else:
             print(f"⚠️ Ошибка получения информации: {response.status_code}")

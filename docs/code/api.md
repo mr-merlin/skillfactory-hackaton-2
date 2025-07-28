@@ -570,7 +570,7 @@ def predict_conversion(data):
         json=data,
         timeout=10
     )
-    
+
     if response.status_code == 200:
         return response.json()
     else:
@@ -601,11 +601,11 @@ async function predictConversion(data) {
         },
         body: JSON.stringify(data)
     });
-    
+
     if (!response.ok) {
         throw new Error(`API Error: ${response.statusText}`);
     }
-    
+
     return await response.json();
 }
 
@@ -720,4 +720,4 @@ spec:
   - port: 80
     targetPort: 5001
   type: LoadBalancer
-``` 
+```

@@ -43,7 +43,8 @@ class SberAutoModel:
         print(f"📊 Хиты: {hits.shape}")
         print(f"📊 Общее количество хитов: {hits.shape[0]:,}")
         print(
-            f"📊 Среднее хитов на сессию: {hits.groupby('session_id')['hit_number'].max().mean():.1f}"
+            f"📊 Среднее хитов на сессию: "
+            f"{hits.groupby('session_id')['hit_number'].max().mean():.1f}"
         )
 
         return sessions, hits
@@ -95,13 +96,17 @@ class SberAutoModel:
         print(f"✅ Найдено {len(self.target_actions)} целевых действий")
         print(f"📋 Примеры: {self.target_actions[:5]}")
 
-        total_target_events = hits[hits["event_action"].isin(self.target_actions)].shape[0]
+        total_target_events = hits[
+            hits["event_action"].isin(self.target_actions)
+        ].shape[0]
         print(f"📊 Всего целевых событий: {total_target_events:,}")
         print(f"📊 Доля целевых событий: {total_target_events/len(hits)*100:.1f}%")
 
         return self.target_actions
 
-    def create_features(self, sessions: pd.DataFrame, hits: pd.DataFrame) -> pd.DataFrame:
+    def create_features(
+        self, sessions: pd.DataFrame, hits: pd.DataFrame
+    ) -> pd.DataFrame:
         """Создание признаков"""
         print("🔧 Создаем признаки...")
 
@@ -112,7 +117,9 @@ class SberAutoModel:
             )
 
         hits["is_target"] = hits["event_action"].apply(
-            lambda x: 1 if any(key in str(x).lower() for key in self.target_actions) else 0
+            lambda x: 1
+            if any(key in str(x).lower() for key in self.target_actions)
+            else 0
         )
 
         # Агрегация по сессии
@@ -240,7 +247,9 @@ class SberAutoModel:
         df["city_tier_very_high"] = (df["city_tier"] == "very_high").astype(int)
 
         # Источники трафика
-        df["is_paid"] = ~df["utm_medium"].isin(["organic", "referral", "(none)"]).astype(int)
+        df["is_paid"] = (
+            ~df["utm_medium"].isin(["organic", "referral", "(none)"]).astype(int)
+        )
         df["is_organic"] = (df["utm_medium"] == "organic").astype(int)
         df["is_referral"] = (df["utm_medium"] == "referral").astype(int)
         df["is_direct"] = (df["utm_medium"] == "(none)").astype(int)
@@ -346,12 +355,16 @@ class SberAutoModel:
             f"{len([f for f in feature_cols if 'city' in f or 'moscow' in f or 'spb' in f])}"
         )
         temporal_keywords = ["hour", "week", "morning", "afternoon", "evening", "night"]
-        temporal_features = [f for f in feature_cols if any(kw in f for kw in temporal_keywords)]
+        temporal_features = [
+            f for f in feature_cols if any(kw in f for kw in temporal_keywords)
+        ]
         print(f"⏰ Временных признаков: {len(temporal_features)}")
 
         return X, Y
 
-    def optimize_hyperparameters(self, X: pd.DataFrame, y: pd.Series) -> RandomForestClassifier:
+    def optimize_hyperparameters(
+        self, X: pd.DataFrame, y: pd.Series
+    ) -> RandomForestClassifier:
         """Оптимизация гиперпараметров модели"""
         print("🔧 Оптимизируем гиперпараметры...")
 
@@ -450,15 +463,22 @@ class SberAutoModel:
 
         # Кросс-валидация с дополнительными метриками
         cv_roc_scores = cross_val_score(self.model, X, y, cv=5, scoring="roc_auc")
-        cv_precision_scores = cross_val_score(self.model, X, y, cv=5, scoring="precision")
+        cv_precision_scores = cross_val_score(
+            self.model, X, y, cv=5, scoring="precision"
+        )
         cv_recall_scores = cross_val_score(self.model, X, y, cv=5, scoring="recall")
 
-        print(f"\n📊 КРОСС-ВАЛИДАЦИЯ:")
-        print(f"   ROC-AUC: {cv_roc_scores.mean():.4f} (+/- {cv_roc_scores.std() * 2:.4f})")
+        print("\n📊 КРОСС-ВАЛИДАЦИЯ:")
         print(
-            f"   Precision: {cv_precision_scores.mean():.3f} (+/- {cv_precision_scores.std() * 2:.3f})"
+            f"   ROC-AUC: {cv_roc_scores.mean():.4f} (+/- {cv_roc_scores.std() * 2:.4f})"
         )
-        print(f"   Recall: {cv_recall_scores.mean():.3f} (+/- {cv_recall_scores.std() * 2:.3f})")
+        print(
+            f"   Precision: {cv_precision_scores.mean():.3f} "
+            f"(+/- {cv_precision_scores.std() * 2:.3f})"
+        )
+        print(
+            f"   Recall: {cv_recall_scores.mean():.3f} (+/- {cv_recall_scores.std() * 2:.3f})"
+        )
 
         # Сохраняем метрики для возврата
         self.metrics = {
@@ -525,7 +545,9 @@ class SberAutoModel:
             dict: Результат предсказания с дополнительной информацией
         """
         if self.model is None:
-            raise ValueError("Модель не загружена. Сначала загрузите или обучите модель.")
+            raise ValueError(
+                "Модель не загружена. Сначала загрузите или обучите модель."
+            )
 
         if self.feature_names is None:
             raise ValueError("Признаки модели не загружены.")
@@ -549,7 +571,11 @@ class SberAutoModel:
 
         # Дополнительная информация
         confidence_level = (
-            "высокая" if probability > 0.7 else "средняя" if probability > 0.3 else "низкая"
+            "высокая"
+            if probability > 0.7
+            else "средняя"
+            if probability > 0.3
+            else "низкая"
         )
 
         return {
@@ -630,7 +656,10 @@ def train_and_save_model() -> SberAutoModel:
 
     print("🎉 Модель обучена и сохранена!")
     print(f"📊 ROC-AUC: {roc_auc:.4f}")
-    print(f"✅ Целевой показатель 0.65 " f"{'достигнут' if roc_auc >= 0.65 else 'НЕ достигнут'}")
+    print(
+        f"✅ Целевой показатель 0.65 "
+        f"{'достигнут' if roc_auc >= 0.65 else 'НЕ достигнут'}"
+    )
 
     return model
 

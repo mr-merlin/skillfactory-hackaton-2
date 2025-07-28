@@ -198,9 +198,9 @@ def predict_batch() -> Any:
         # Статистика результатов
         successful_predictions = [r for r in results if "error" not in r]
         if successful_predictions:
-            avg_probability = sum(r["probability"] for r in successful_predictions) / len(
-                successful_predictions
-            )
+            avg_probability = sum(
+                r["probability"] for r in successful_predictions
+            ) / len(successful_predictions)
             high_confidence_count = sum(
                 1 for r in successful_predictions if r["confidence_level"] == "высокая"
             )
@@ -247,7 +247,9 @@ def model_info() -> Any:
     return jsonify(
         {
             "feature_count": len(model.feature_names) if model.feature_names else 0,
-            "target_actions_count": len(model.target_actions) if model.target_actions else 0,
+            "target_actions_count": len(model.target_actions)
+            if model.target_actions
+            else 0,
             "feature_names": model.feature_names[:10] if model.feature_names else [],
             "target_actions": model.target_actions[:5] if model.target_actions else [],
             "status": "loaded",
@@ -303,7 +305,15 @@ def get_features() -> Any:
                     f
                     for f in model.feature_names
                     if any(
-                        x in f for x in ["hour", "week", "morning", "afternoon", "evening", "night"]
+                        x in f
+                        for x in [
+                            "hour",
+                            "week",
+                            "morning",
+                            "afternoon",
+                            "evening",
+                            "night",
+                        ]
                     )
                 ],
                 "device": [
@@ -330,7 +340,10 @@ def get_features() -> Any:
                 "behavioral": [
                     f
                     for f in model.feature_names
-                    if any(x in f for x in ["hits", "pages", "duration", "engagement", "activity"])
+                    if any(
+                        x in f
+                        for x in ["hits", "pages", "duration", "engagement", "activity"]
+                    )
                 ],
                 "traffic": [
                     f
@@ -382,4 +395,7 @@ if __name__ == "__main__":
         # Запускаем сервер
         app.run(host="0.0.0.0", port=5001, debug=False)
     else:
-        print("❌ Не удалось загрузить модель. " "Проверьте наличие файла sber_auto_model.pkl")
+        print(
+            "❌ Не удалось загрузить модель. "
+            "Проверьте наличие файла sber_auto_model.pkl"
+        )

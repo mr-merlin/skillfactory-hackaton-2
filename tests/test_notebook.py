@@ -56,7 +56,10 @@ def main():
     print("🚀 ТЕСТИРОВАНИЕ JUPYTER NOTEBOOK")
     print("=" * 40)
 
-    tests = [("Jupyter сервер", test_jupyter_server), ("Файл ноутбука", test_notebook_file)]
+    tests = [
+        ("Jupyter сервер", test_jupyter_server),
+        ("Файл ноутбука", test_notebook_file),
+    ]
 
     passed = 0
     total = len(tests)

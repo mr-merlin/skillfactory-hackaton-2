@@ -14,8 +14,8 @@
 ```python
 [
     'visit_number', 'total_hits', 'unique_pages', 'session_duration',
-    'visit_hour', 'visit_weekday', 'is_weekend', 'is_mobile', 'is_android', 
-    'is_ios', 'is_desktop', 'is_tablet', 'is_moscow', 'is_paid', 
+    'visit_hour', 'visit_weekday', 'is_weekend', 'is_mobile', 'is_android',
+    'is_ios', 'is_desktop', 'is_tablet', 'is_moscow', 'is_paid',
     'avg_time_per_page', 'bounce_rate', 'deep_engagement', 'long_session'
 ]
 ```
@@ -165,4 +165,4 @@ Random Forest Classifier является **оптимальным выборо�
 4. **Простоте** использования и поддержки
 5. **Быстроте** обучения и предсказания
 
-Модель полностью соответствует требованиям задачи и готова к использованию в продакшене. 
+Модель полностью соответствует требованиям задачи и готова к использованию в продакшене.

@@ -6,16 +6,16 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
-    classification_report,
-    roc_auc_score,
     average_precision_score,
-    brier_score_loss,
-    f1_score,
-    recall_score,
-    precision_score,
     balanced_accuracy_score,
+    brier_score_loss,
+    classification_report,
     cohen_kappa_score,
+    f1_score,
     matthews_corrcoef,
+    precision_score,
+    recall_score,
+    roc_auc_score,
 )
 from sklearn.model_selection import GridSearchCV, cross_val_score, train_test_split
 
